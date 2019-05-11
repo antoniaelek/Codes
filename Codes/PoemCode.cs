@@ -134,11 +134,10 @@ namespace Codes
 
         private static char[,] ConstructMessageMatrix(string plaintext, int[] numberedTK)
         {
-            // Split message
             var rows = SplitMessageIntoGroups(plaintext, numberedTK.Length);
 
-            // Construct message matrix
             char[,] matrix = new char[rows.Count, numberedTK.Length];
+
             for (int i = 0; i < rows.Count; i++)
             {
                 string row = rows[i];
@@ -154,6 +153,7 @@ namespace Codes
         private char[,] TransposeMatrix(char[,] matrix)
         {
             var transposed = new char[matrix.GetLength(1), matrix.GetLength(0)];
+
             for (int i = 0; i < matrix.GetLength(0); i++)
             {
                 for (int j = 0; j < matrix.GetLength(1); j++)
@@ -168,6 +168,7 @@ namespace Codes
         private string OrderRowsByTranspositionKey(char[,] transposed, int[] numberedTK)
         {
             var encoded = new Dictionary<int, string>();
+
             for (int i = 0; i < transposed.GetLength(0); i++)
             {
                 encoded[numberedTK[i]] = "";
@@ -181,6 +182,7 @@ namespace Codes
             }
 
             var result = new StringBuilder();
+
             foreach (var key in encoded.Keys.OrderBy(k => k))
             {
                 result.Append(encoded[key].Trim());
