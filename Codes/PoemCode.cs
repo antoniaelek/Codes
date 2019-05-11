@@ -54,24 +54,22 @@ namespace Codes
             var numberedTK = NumberTranspositionKey(tk);
             Log.Debug("Numbering transposition key...\n{tkNum}\n{tk}", numberedTK.Print(), tkStr.ToCharArray().Print());
 
-            // Construct message matrix
             var matrix = ConstructMessageMatrix(plaintext, numberedTK);
             Log.Debug("Constructing message matrix...\n{tkNum}\n{matrix}", numberedTK.Print(), matrix.Print());
 
-            // Transpose message matrix
             var transposed = TransposeMatrix(matrix);
             Log.Debug("Transposing message matrix...\n{matrix}", transposed.Print());
 
-            // Order by transposition key
-            var result = OrderRowsByTranspositionKey(transposed, numberedTK);
-            Log.Debug("Encoded message: {res}", result);
+            var message = OrderRowsByTranspositionKey(transposed, numberedTK);
+            message = string.Join(" ", SplitMessageIntoGroups(message));
 
-            return $"{ig} {result}";
+            Log.Debug("Encoded message: {mes}", message);
+
+            return $"{ig} {message}";
         }
 
-        private int[] RandomTranspositionKey()
+        private int[] RandomTranspositionKey(int noWords = 5)
         {
-            var noWords = 5;
             var indices = new int[noWords];
             for (int i = 0; i < noWords; i++)
             {
@@ -121,17 +119,23 @@ namespace Codes
 
             return numbered;
         }
+       
+        private static List<string> SplitMessageIntoGroups(string plaintext, int groupSize = 5)
+        {
+            var rows = new List<string>();
+            var noRows = (int)(plaintext.Length / Math.Min(groupSize, plaintext.Length));
+            for (int i = 0; i < noRows; i++)
+            {
+                rows.Add(plaintext.Substring(i * groupSize, groupSize));
+            }
+            rows.Add(plaintext.Substring(noRows * groupSize));
+            return rows;
+        }
 
         private static char[,] ConstructMessageMatrix(string plaintext, int[] numberedTK)
         {
             // Split message
-            var rows = new List<string>();
-            var noRows = (int)(plaintext.Length / numberedTK.Length);
-            for (int i = 0; i < noRows; i++)
-            {
-                rows.Add(plaintext.Substring(i * numberedTK.Length, numberedTK.Length));
-            }
-            rows.Add(plaintext.Substring(noRows * numberedTK.Length));
+            var rows = SplitMessageIntoGroups(plaintext, numberedTK.Length);
 
             // Construct message matrix
             char[,] matrix = new char[rows.Count, numberedTK.Length];
